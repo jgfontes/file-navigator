@@ -47,20 +47,20 @@ public enum Command {
         @Override
         Path execute(Path path) throws IOException {
             FileReader fileReader = new FileReader();
+            //Validate if command has empty input
             if(parameters.length <= 1) {
                 throw new UnsupportedOperationException("SHOW Command needs an input. Example: 'OPEN teste.txt'. Try again.");
             }
             String fileName = parameters[1];
-
             //Validate if file has extension and if directory contains the file
             if(getFileExtension(fileName).isEmpty() || !directoryHasFile(path, fileName)) {
                 throw new UnsupportedOperationException("The file cannot be a folder and should be contained in the directory. Try again.");
             }
-
-            //
-
+            //Validate supported file extensions
+            if(!getFileExtension(fileName).get().equals("txt")) {
+                throw new UnsupportedOperationException("Unsupported extension. Try again.");
+            }
             fileReader.read(Paths.get(path.toString() + File.separatorChar + fileName));
-
             return path;
         }
     },
@@ -73,12 +73,11 @@ public enum Command {
 
         @Override
         Path execute(Path path) {
-
             //Validate if application is already on ROOT
             if(path.toString().equals(Application.ROOT)) {
                 throw new UnsupportedOperationException("Cannot go back! The application is already on its root.");
             }
-            System.out.println("Printing new path: " + path.getParent());
+            System.out.println("New path: " + path.getParent());
             return path.getParent();
         }
     },
@@ -129,7 +128,7 @@ public enum Command {
         @Override
         Path execute(Path path) {
             if(parameters.length <= 1) {
-                throw new UnsupportedOperationException("SHOW Command needs an input. Example: 'OPEN teste.txt'. Try again.");
+                throw new UnsupportedOperationException("DETAIL Command needs an input. Example: 'OPEN teste.txt'. Try again.");
             }
             String fileName = parameters[1];
 
@@ -195,9 +194,8 @@ public enum Command {
         }
 
         String extension = fileNameArray[fileNameArray.length-1];
-
         //Declare regex
-        boolean regexStatement = Pattern.compile("[a-zA-Z]{3}").matcher(extension).matches();
+        boolean regexStatement = Pattern.compile("[a-zA-Z0-9]{3}").matcher(extension).matches();
         if(regexStatement) {
             return Optional.ofNullable(extension);
         }
